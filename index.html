@@ -360,7 +360,7 @@ function storageKey() {
   return `checklist:${weekStr}:${currentDay}`;
 }
 
-async function loadDay(day) {
+function loadDay(day) {
   currentDay = day;
   renderDayPicker();
   document.getElementById('dateLabel').textContent = todayDateString();
@@ -368,8 +368,8 @@ async function loadDay(day) {
   const items = SCHEDULE[day];
   let saved = null;
   try {
-    const result = await window.storage.get(storageKey(), false);
-    if (result && result.value) saved = JSON.parse(result.value);
+    const raw = localStorage.getItem(storageKey());
+    if (raw) saved = JSON.parse(raw);
   } catch (e) {
     saved = null;
   }
@@ -380,9 +380,9 @@ async function loadDay(day) {
   renderList();
 }
 
-async function saveDay() {
+function saveDay() {
   try {
-    await window.storage.set(storageKey(), JSON.stringify(checkedState[currentDay]), false);
+    localStorage.setItem(storageKey(), JSON.stringify(checkedState[currentDay]));
   } catch (e) {
     console.error('Storage save failed', e);
   }
@@ -440,11 +440,11 @@ function updateProgress() {
   document.getElementById('progressLabel').textContent = `${done}/${total}`;
 }
 
-document.getElementById('resetBtn').onclick = async () => {
+document.getElementById('resetBtn').onclick = () => {
   const items = SCHEDULE[currentDay];
   checkedState[currentDay] = items.map(() => false);
   renderList();
-  await saveDay();
+  saveDay();
 };
 
 loadDay(currentDay);
